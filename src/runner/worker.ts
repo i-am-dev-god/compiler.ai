@@ -12,7 +12,8 @@ import harnessSource from './harness.py?raw';
  */
 
 const PYODIDE_VERSION = '314.0.8';
-const LOCAL_BASE = '/pyodide/';
+// Vite rewrites BASE_URL for whatever subpath the site is deployed under.
+const LOCAL_BASE = `${import.meta.env.BASE_URL}pyodide/`;
 const CDN_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 
 type PyodideAPI = {

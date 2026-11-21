@@ -15,6 +15,8 @@ Python runs the code. The model never decides whether a program is correct.
 code-tuned), with `LFM2.5-1.2B` for weak GPUs and `Qwen3.5-2B` when there is memory to spare. It is asked for
 once, on first load, and can be declined.
 
+**Live:** <https://i-am-dev-god.github.io/compiler.ai/> — same build, deployed from `main` by GitHub Actions.
+
 ## Run it
 
 ```bash
@@ -64,6 +66,7 @@ Tests changed the implementation several times while writing this; the ones belo
 | The editor underlines exactly the marked span | `tests/editor.test.ts` mounts real CodeMirror, checks the highlighted text and the line-removal/insert semantics. |
 | Explanations cannot contain code or fix instructions | `tests/guard.test.ts`, including "what if the loop used `n + 1`?" and quoting the fix back after the student already wrote it. |
 | The first visit asks for the model download | `tests/app.smoke.test.ts` boots the real `index.html` plus the real app module. |
+| The app works under a project subpath | Built with `PAGES_BASE=/compiler.ai/` and served from that path in preview: page, `sw.js`, assets and `/pyodide/pyodide.mjs` all resolve. |
 
 **Not verified here:** the sandbox has no browser and no GPU, so the WebGPU inference path, the service-worker
 offline flow and the visual layout were not exercised end to end. Python was exercised headlessly in Node with
@@ -108,6 +111,22 @@ docs/MODEL_CHOICE.md       model research, decision matrix, measurement protocol
   useful with no download and no network.
 - **Lazy by default.** WebLLM (~6 MB) is a separate chunk fetched only when a model is turned on; the base app
   is ~524 kB of JS (176 kB gzipped) including CodeMirror.
+
+## Deploy
+
+`main` deploys itself. `.github/workflows/deploy.yml` runs the tests, the curriculum proof and the build with
+`PAGES_BASE=/<repo>/`, then publishes `dist/` through `actions/upload-pages-artifact` and
+`actions/deploy-pages`.
+
+Two things make a project site work rather than 404:
+
+- **The base path is a build input.** `vite.config.ts` reads `PAGES_BASE`; the workflow sets it from the
+  repository name, so nothing hardcodes `/compiler.ai/`.
+- **Runtime URLs follow it.** The worker loads `${BASE_URL}pyodide/`, the service worker registers under the
+  base and derives its own scope from `self.registration.scope`, and the offline cache primes the same paths.
+  `public/.nojekyll` stops Pages from dropping files Jekyll dislikes.
+
+Pyodide is gitignored (20 MB), so CI vendors it during `npm ci`; the Pages artifact carries the interpreter.
 
 ## Privacy and offline
 

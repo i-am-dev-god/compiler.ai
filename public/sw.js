@@ -5,8 +5,11 @@
  * are cached separately by WebLLM's own Cache API storage, so this worker never
  * touches cross-origin requests.
  */
-const CACHE = 'tracegym-shell-v1';
-const PRECACHE = ['/', '/index.html'];
+const CACHE = 'tracegym-shell-v2';
+// Derived from the registration scope so the same file works at "/" and under
+// a GitHub Pages project path such as "/compiler.ai/".
+const BASE = new URL(self.registration.scope).pathname;
+const PRECACHE = [BASE, `${BASE}index.html`];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -39,7 +42,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isImmutable = url.pathname.startsWith('/pyodide/') || url.pathname.startsWith('/assets/');
+  const isImmutable =
+    url.pathname.startsWith(`${BASE}pyodide/`) || url.pathname.startsWith(`${BASE}assets/`);
   if (isImmutable) {
     event.respondWith(
       caches.match(request).then(
@@ -61,7 +65,7 @@ self.addEventListener('fetch', (event) => {
           put(request, response);
           return response;
         })
-        .catch(() => caches.match('/index.html').then((hit) => hit || caches.match('/'))),
+        .catch(() => caches.match(`${BASE}index.html`).then((hit) => hit || caches.match(BASE))),
     );
   }
 });

@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite';
 
+// GitHub Pages serves project sites under /<repo>/, so the base is injected by
+// the deploy workflow. Local dev and preview stay at the root.
+const base = process.env.PAGES_BASE ?? '/';
+
 export default defineConfig({
+  base,
   server: {
     host: '0.0.0.0',
     port: 5173,

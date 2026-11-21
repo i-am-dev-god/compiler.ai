@@ -251,7 +251,7 @@ runner.onStatus = (status: RunnerStatus) => {
         el(
           'p',
           'placeholder',
-          `Python could not start${status.detail ? ` (${status.detail})` : ''}. The interpreter is served from /pyodide/ on this origin — run "npm run vendor:pyodide" and reload. Your code is safe in the editor.`,
+          `Python could not start${status.detail ? ` (${status.detail})` : ''}. The interpreter is served from this site's pyodide/ folder — run "npm run vendor:pyodide" and reload. Your code is safe in the editor.`,
         ),
       );
     }
@@ -917,7 +917,7 @@ async function warmOfflineCache() {
     for (const script of Array.from(document.querySelectorAll<HTMLScriptElement>('script[src]'))) {
       urls.add(script.src);
     }
-    for (const file of PYODIDE_FILES) urls.add(`/pyodide/${file}`);
+    for (const file of PYODIDE_FILES) urls.add(`${import.meta.env.BASE_URL}pyodide/${file}`);
 
     await Promise.all(
       Array.from(urls).map(async (url) => {
@@ -951,7 +951,7 @@ editor.focus();
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
   });
 }
 
