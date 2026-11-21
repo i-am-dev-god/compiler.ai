@@ -1,6 +1,6 @@
 import type { CatalogModel } from './models';
 import { catalogForRuntimeId } from './models';
-import type { ChatMessage, HelpMode } from './prompt';
+import type { ChatMessage, GenMode } from './prompt';
 import { GENERATION_PARAMS } from './prompt';
 
 /**
@@ -179,7 +179,7 @@ export class AIClient {
     });
   }
 
-  complete(messages: ChatMessage[], mode: HelpMode, onToken?: (tokens: number) => void): Promise<CompletionResult> {
+  complete(messages: ChatMessage[], mode: GenMode, onToken?: (tokens: number) => void): Promise<CompletionResult> {
     if (!this.loadedId) return Promise.reject(new Error('No model is loaded.'));
     const worker = this.ensureWorker();
     const params = GENERATION_PARAMS[mode];

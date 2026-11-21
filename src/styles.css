@@ -1303,3 +1303,196 @@ pre {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- compiler: error card ---------- */
+
+.error-card {
+  background: #fffdfc;
+  border: 1px solid #eed6cf;
+  border-left: 3px solid var(--fail);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  cursor: pointer;
+}
+
+.error-card.flash {
+  animation: error-flash 900ms ease;
+}
+
+@keyframes error-flash {
+  0%,
+  100% {
+    background: #fffdfc;
+  }
+  30% {
+    background: #fbeee9;
+  }
+}
+
+.error-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.error-type {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fail);
+}
+
+.error-loc {
+  font-size: 11.5px;
+  color: var(--faint);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.error-card-message {
+  margin: 5px 0 0;
+  font-size: 12.8px;
+  line-height: 1.5;
+}
+
+.error-card-span {
+  margin: 8px 0 0;
+  background: var(--fail-soft);
+  border: 1px solid #f0d9d2;
+  border-radius: 6px;
+  padding: 5px 8px;
+  color: #7c2f22;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error-card-hint {
+  margin: 7px 0 0;
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+/* ---------- compiler: editor marks and inline fix ---------- */
+
+.cm-error-span {
+  background: rgba(168, 64, 47, 0.12);
+  border-bottom: 2px solid var(--fail);
+  border-radius: 2px;
+}
+
+.cm-error-line {
+  background: rgba(168, 64, 47, 0.045);
+}
+
+.cm-fix {
+  margin: 6px 0 10px;
+  border: 1px solid #cfe0d5;
+  border-left: 3px solid var(--accent);
+  background: #fbfdfb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.cm-fix-head {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.cm-fix-diff {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 0;
+  overflow-x: auto;
+}
+
+.cm-fix-line {
+  padding: 1px 8px;
+  white-space: pre;
+}
+
+.cm-fix-line.removed {
+  background: var(--fail-soft);
+  color: #7c2f22;
+}
+
+.cm-fix-line.added {
+  background: #eef6ef;
+  color: #23533a;
+}
+
+.cm-fix-why {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cm-fix-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cm-fix-apply,
+.cm-fix-dismiss {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.cm-fix-apply {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #f6fbf7;
+  font-weight: 560;
+}
+
+.cm-fix-dismiss {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+/* ---------- compiler: answer rules and first run ---------- */
+
+.answer-rules {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.answer-rules summary {
+  cursor: pointer;
+  color: var(--faint);
+  font-size: 11.5px;
+}
+
+.answer-rules ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.45;
+}
+
+.firstrun {
+  background: var(--accent-soft);
+  border: 1px solid #dce9e0;
+  color: #23533a;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}

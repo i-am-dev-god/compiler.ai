@@ -19,6 +19,7 @@ const crash: RunResult = {
     message: "name 'undefined_name' is not defined",
     line: 2,
     snippet: 'undefined_name',
+    span: { line: 2, col_start: 0, col_end: 14 },
     traceback: 'Traceback (most recent call last):\n  File "student.py", line 2, in <module>\n    undefined_name\nNameError: name \'undefined_name\' is not defined',
   },
   tests: [],

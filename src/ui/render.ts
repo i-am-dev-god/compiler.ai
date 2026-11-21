@@ -109,7 +109,7 @@ export function renderTests(container: HTMLElement, result: RunResult | null, go
     return;
   }
   if (result.tests.length === 0) {
-    container.append(el('p', 'placeholder', 'Playground runs whole programs, so there are no tests here. Use the Output tab, or pick an exercise in Debug Lab to see individual test cases.'));
+    container.append(el('p', 'placeholder', 'The compiler runs whole programs, so there are no tests here. Use the Output tab, or pick an exercise in Debug Lab to see individual test cases.'));
     return;
   }
 

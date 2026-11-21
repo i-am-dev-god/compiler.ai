@@ -11,23 +11,29 @@ The rest of this document is why, plus how to check it on real hardware instead 
 
 ## 1. What the model actually has to do
 
-The tutor is not a code generator. Its whole job is:
+The model has two jobs, both narrow, and they are checked in opposite directions:
 
-| Input | Output |
-| --- | --- |
-| ~40 lines of beginner Python, the failing `range(1, n)`, and the evidence (traceback *or* input/expected/actual) | ≤ 3 sentences naming what Python did, then **one question** that points at the concept |
-| For hints: same input | **one question**, ≤ 25 words |
+| Job | Input | Output | Hard failure |
+| --- | --- | --- | --- |
+| **Explain** | numbered beginner program, the failing expression, the error | two sentences naming what Python did, then **one question** | writing code, quoting a corrected line, "change X to Y", judging the program correct |
+| **Hint** | same | **one question**, ≤ 25 words | same |
+| **Repair** | same, plus the goal | one JSON object: `{"line", "lines", "replacement", "why"}` | touching code away from the error, restructuring the program, flattening an indent |
 
-Violations are hard failures: writing code, printing a corrected line, saying "change X to Y", or
-deciding the program is correct. So the required skills, in order, are:
+The explain path is guarded as prose: `applyGuard` rejects code fences, statement-shaped lines and
+fix verbs, and truncates to three sentences. The repair path is guarded structurally: `validateFix`
+parses the JSON, refuses anything more than ±2 lines from the error or more than 3 replaced lines,
+refuses a no-op and a flattened block, and the app renders the result as a diff before applying it.
+So the required skills, in order, are:
 
 1. **Python semantics** — knows that `range(1, n)` excludes `n`, that `best = 0` loses to negative
    numbers, that mutating a list while iterating skips elements, that `str + int` is a `TypeError`.
-2. **Instruction following under a strict format** — one question, no code, short.
+2. **Instruction following under a strict format** — one question, no code, short; or exactly one
+   small JSON object and nothing around it.
 3. **Low latency** — an answer that arrives after 20 seconds does not get read.
 
 Raw reasoning benchmarks (MMLU, GPQA) predict (1) only weakly; instruction-following benchmarks
-(IFEval) predict (2) well. That is the lens for the table below.
+(IFEval) predict (2) well, and a code-tuned model predicts the *repair* half of (2) better than a
+general model of the same size. That is the lens for the table below.
 
 ## 2. Hard constraints from the browser
 
@@ -136,13 +142,25 @@ What to look for in the results table:
 Run it on two models on the same machine, export both JSONs, and keep them — that is the actual
 answer to "which model is best", and it is hardware-specific.
 
+**Repair is measured by outcome, not by prose.** A patch does not need to sound good: it needs to run.
+The natural third pass for Model Lab is to ask each model for a patch on each starter, pass it through
+`validateFix`, apply it in the runner and score *valid JSON → patch accepted → error gone → tests
+pass*. `validateFix`, `applyFix` and the runner already exist, so no new harness is needed. Until that
+runs on real hardware, the repair path is verified structurally only (`tests/fix.test.ts`,
+`tests/fix-flow.test.ts`): that proves a bad patch cannot touch the program, not that every model
+produces a good one. Expect JSON compliance to be the binding constraint — a model that writes a
+correct fix in prose but forgets the closing brace scores zero, which is the right outcome for a
+student but a bad look for the model.
+
 ## 7. What would beat all of these
 
-A 0.5–1.5B model LoRA-tuned on ~2–5k `(code, traceback) → Socratic question` pairs would outperform
-every base model here at this narrow task, and could run in under 1 GB. The pieces are already in
-place: `src/data/challenges.json` defines the concept each question must reach, `rubric.ts` scores
-it, and `scripts/verify-curriculum.mjs` proves the training targets are pedagogically correct. Until
-then, ship the base model plus the guard plus the built-in hints.
+A 0.5–1.5B model LoRA-tuned on ~2–5k `(code, traceback) → Socratic question` and
+`(code, traceback) → minimal JSON patch` pairs would outperform every base model here at this narrow
+task, and could run in under 1 GB. The pieces are already in place: `src/data/challenges.json`
+defines the concept each question must reach and the tests each patch must satisfy, `rubric.ts`
+scores the prose, `validateFix` scores the JSON, and `scripts/verify-curriculum.mjs` proves the
+training targets are pedagogically correct (and that the fixes actually pass). Until then, ship the
+base model plus the two guards plus the built-in questions.
 
 ## Sources
 

@@ -119,4 +119,14 @@ describe('guard: blocks answers, allows teaching', () => {
   it('strips markdown noise and leading labels', () => {
     expect(cleanText('**Hint:** the loop stops early.')).toBe('the loop stops early.');
   });
+
+  it('cuts an explanation to two sentences plus one question', () => {
+    const long =
+      'The loop stops before n. Python counts from zero. The last number is skipped. That is why the total is short. ' +
+      'What value does the loop stop at?';
+    const report = applyGuard(long, { mode: 'explain', studentCode: sumToCode, leakPatterns: sumTo.leakPatterns });
+    expect(report.text.split(/(?<=[.!?])\s+/)).toHaveLength(3);
+    expect(report.text.endsWith('?')).toBe(true);
+    expect(report.flags).toContain('too-long');
+  });
 });

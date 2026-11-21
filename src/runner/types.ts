@@ -7,11 +7,20 @@ export interface TestSpec {
   expect_output?: string;
 }
 
+export interface ErrorSpan {
+  line: number;
+  /** Character offsets into the source line, 0-based, end exclusive. */
+  col_start: number;
+  col_end: number;
+}
+
 export interface PyError {
   type: string;
   message: string;
   line: number | null;
   snippet: string | null;
+  /** The exact expression CPython marked with carets, when it reported one. */
+  span: ErrorSpan | null;
   traceback: string;
 }
 

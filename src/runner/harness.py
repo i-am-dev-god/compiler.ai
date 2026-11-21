@@ -10,6 +10,7 @@ import builtins
 import io
 import json
 import linecache
+import re
 import sys
 import time
 import traceback
@@ -58,24 +59,88 @@ def _clean_traceback(exc):
     return text, tb
 
 
+FRAME_RE = re.compile(r'^\s*File "student\.py", line (\d+)')
+
+
+def _span_from_traceback(text):
+    """Find the innermost student frame and the column range CPython marked.
+
+    Python 3.11+ draws a caret line under the failing expression:
+        y = "a" + x
+            ~~~~^~~
+    The union of '^' and '~' is the expression that failed. Carets are measured
+    against the *stripped* source line (traceback re-indents everything by four
+    spaces), so the columns have to be shifted back by that much plus the line's
+    own indentation.
+    """
+    lines = text.splitlines()
+    for index in range(len(lines) - 1, -1, -1):
+        match = FRAME_RE.match(lines[index])
+        if not match:
+            continue
+        line_no = int(match.group(1))
+        original = linecache.getline(STUDENT_FILE, line_no).rstrip("\n").rstrip()
+        if not original:
+            return line_no, None, None, None
+        indent = len(original) - len(original.lstrip())
+        if index + 2 < len(lines):
+            marker = lines[index + 2]
+            marks = [i for i, char in enumerate(marker) if char in "^~"]
+            if marks:
+                # 4 columns are the traceback's own frame indent.
+                start = max(0, min(marks) - 4) + indent
+                end = max(0, max(marks) + 1 - 4) + indent
+                if start < len(original):
+                    return line_no, original, start, min(end, len(original))
+        return line_no, original, 0, len(original)
+    return None, None, None, None
+
+
 def _error_payload(exc):
     text, tb = _clean_traceback(exc)
+    message = str(exc)
+    name = type(exc).__name__
+
+    # Syntax errors never reach exec(), so they have no traceback frames: the
+    # position lives on the exception itself (1-based columns).
+    if isinstance(exc, SyntaxError):
+        line = exc.lineno
+        snippet = (exc.text or "").rstrip("\n").rstrip()
+        start = max(0, (exc.offset or 1) - 1)
+        end = max(start + 1, (exc.end_offset or exc.offset or 1) - 1)
+        return {
+            "type": name,
+            "message": message,
+            "line": line,
+            "snippet": snippet or None,
+            "span": {"line": line, "col_start": start, "col_end": min(end, len(snippet) or end)} if line else None,
+            "traceback": text,
+        }
+
     line = None
     frame = tb
     while frame is not None:
         line = frame.tb_lineno
         frame = frame.tb_next
-    message = str(exc)
-    name = type(exc).__name__
-    snippet = None
-    if line:
+
+    span_line, snippet, col_start, col_end = _span_from_traceback(text)
+    if span_line is None and line:
         src = linecache.getline(STUDENT_FILE, line).rstrip()
         snippet = src or None
+        span_line = line if src else None
+        col_start, col_end = 0, len(src) if src else 0
+    if line is None and span_line is not None:
+        line = span_line
+
+    span = None
+    if span_line is not None:
+        span = {"line": span_line, "col_start": col_start or 0, "col_end": col_end or 0}
     return {
         "type": name,
         "message": message,
         "line": line,
         "snippet": snippet,
+        "span": span,
         "traceback": text,
     }
 

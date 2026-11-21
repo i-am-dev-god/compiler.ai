@@ -91,6 +91,28 @@ const badOut = runPayload({ mode: 'script', code: 'print("a")', expected_output:
 check(badOut.status === 'failed', 'a genuinely different output fails');
 check(badOut.output_match?.first_difference?.line === 2, 'reports the first differing line');
 
+console.log('error spans (what the editor underlines)');
+const spanCases = [
+  { name: 'TypeError', code: 'x = 1\ny = "a" + x\n', expect: '"a" + x' },
+  { name: 'NameError', code: 'a = 1\nprint(missing_name)\n', expect: 'missing_name' },
+  { name: 'Indented frame', code: 'def f(n):\n    return n + "s"\n\nf(2)\n', expect: 'n + "s"' },
+  { name: 'IndexError', code: 'items = [1, 2]\nprint(items[5])\n', expect: 'items[5]' },
+  { name: 'ZeroDivisionError', code: 'a = 0\nprint(10 / a)\n', expect: '10 / a' },
+  { name: 'UnboundLocalError', code: 'def f():\n    total += 1\n    return total\nf()\n', expect: 'total' },
+  { name: 'AttributeError', code: 's = "x"\ns.append(1)\n', expect: 's.append' },
+  { name: 'KeyError', code: 'd = {}\nprint(d["k"])\n', expect: 'd["k"]' },
+];
+for (const spanCase of spanCases) {
+  const result = runPayload({ mode: 'script', code: spanCase.code });
+  const span = result.error?.span;
+  const sourceLine = spanCase.code.split('\n')[(span?.line ?? 0) - 1] ?? '';
+  const slice = span ? sourceLine.slice(span.col_start, span.col_end) : null;
+  check(slice === spanCase.expect, `${spanCase.name} span covers ${JSON.stringify(spanCase.expect)}`, JSON.stringify(slice));
+}
+const syntax = runPayload({ mode: 'script', code: 'def f(:\n    pass\n' });
+check(syntax.error?.type === 'SyntaxError', 'SyntaxError is reported');
+check(Boolean(syntax.error?.span), 'SyntaxError has a caret span from the exception', JSON.stringify(syntax.error?.span));
+
 console.log('runtime guards');
 const loop = runPayload({ mode: 'script', code: 'while True:\n    print("spam")' });
 check(loop.error?.type === 'OutputLimit', 'runaway printing is stopped', loop.error?.type);

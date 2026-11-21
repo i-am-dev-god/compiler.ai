@@ -24,7 +24,7 @@ export function challengeById(id: string): Challenge | undefined {
   return CHALLENGES.find((challenge) => challenge.id === id);
 }
 
-export const PLAYGROUND_STARTER = `# Playground: write or paste any Python.
+export const PLAYGROUND_STARTER = `# Compiler: write or paste any Python.
 # Compare against expected output if you have it.
 
 def average(numbers):

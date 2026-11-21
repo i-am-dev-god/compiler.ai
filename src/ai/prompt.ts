@@ -1,6 +1,8 @@
 import type { RunResult } from '../runner/types';
 
 export type HelpMode = 'explain' | 'hint';
+/** Everything the local model is asked to generate. */
+export type GenMode = HelpMode | 'fix';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -15,19 +17,20 @@ export interface HelpContext {
   challengeTitle?: string | null;
 }
 
-const SYSTEM_TUTOR = `You are TraceGym's debugging tutor. A beginner wrote the Python program and has just run it. You can see their code and the evidence from the run. You cannot fix the program for them.
+const SYSTEM_TUTOR = `You are TraceGym's debugging tutor. A beginner wrote the Python program and has just run it. You can see their code and the evidence from the run. They pressed a button to ask you about one error; they did not ask for a review.
 
 Hard rules:
 1. Never write code. No code blocks, no corrected lines, no diffs, no "change this to that".
 2. You may quote a few words of their existing code, but never new code they have not written.
 3. Say what Python actually did: which line, which value, which rule was broken.
-4. If you are not sure, ask a question instead of guessing.
-5. Plain English. Explain any term you have to use.
-6. Never say the program is correct or incorrect - the tests decide that.`;
+4. Talk only about the error you were given. Do not review the rest of the program, do not add advice, do not ask them to run something else.
+5. Short and simple: two sentences, the words a beginner already knows. Explain a term only if you have to use it. No preamble, no lists, no summaries.
+6. If you are not sure, ask a question instead of guessing.
+7. Never say the program is correct or incorrect - the tests decide that.`;
 
 const MODE_RULES: Record<HelpMode, string> = {
   explain:
-    'Explain what went wrong in at most 3 short sentences, then ask exactly one question that helps them find the fix themselves. Never state the fix.',
+    'Explain what went wrong in at most 2 short sentences, then ask exactly one short question that helps them find the fix themselves. Never state the fix.',
   hint:
     'Give exactly one hint, phrased as a single question of at most 25 words. No explanation, no preamble, no code. End with a question mark.',
 };
@@ -112,7 +115,9 @@ export function buildMessages(context: HelpContext): ChatMessage[] {
   ];
 }
 
-export const GENERATION_PARAMS: Record<HelpMode, { maxTokens: number; temperature: number; topP: number }> = {
+export const GENERATION_PARAMS: Record<GenMode, { maxTokens: number; temperature: number; topP: number }> = {
   explain: { maxTokens: 220, temperature: 0.2, topP: 0.9 },
   hint: { maxTokens: 96, temperature: 0.25, topP: 0.9 },
+  // A patch is short and must be exact: low temperature, no room to ramble.
+  fix: { maxTokens: 280, temperature: 0.1, topP: 0.9 },
 };

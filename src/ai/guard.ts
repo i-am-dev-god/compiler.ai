@@ -82,7 +82,15 @@ function limit(text: string, mode: HelpMode): { text: string; truncated: boolean
     if (parts.length > 2) return { text: parts.slice(-2).join(' '), truncated: true };
     return { text, truncated: false };
   }
-  if (parts.length > 4) return { text: parts.slice(0, 4).join(' '), truncated: true };
+  // Two sentences of explanation plus one question. Anything past that is the
+  // model lecturing, which is the thing students stop reading. Keep the
+  // question even when it came last: dropping it turns advice into a command.
+  if (parts.length > 3) {
+    const question = parts.find((part) => part.endsWith('?'));
+    const body = parts.filter((part) => !part.endsWith('?')).slice(0, 2);
+    const kept = question ? [...body, question] : body.slice(0, 3);
+    return { text: kept.join(' '), truncated: true };
+  }
   return { text, truncated: false };
 }
 

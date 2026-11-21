@@ -127,6 +127,7 @@ export class PythonRunner {
             message: `Your program was still running after ${Math.round(timeoutMs / 1000)} seconds, so I stopped it. Is there a loop that never ends?`,
             line: null,
             snippet: null,
+            span: null,
             traceback: '',
           },
           tests: [],
