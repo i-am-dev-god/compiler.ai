@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TraceGym — learn to debug Python, not to ask for fixes</title>
+    <meta
+      name="description"
+      content="A browser-based Python workbench and debugging tutor. Real tracebacks, real tests, and an optional local model that explains instead of fixing."
+    />
+    <meta name="theme-color" content="#fbfaf6" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232f6f4e'/><path d='M8 20h5l3-8 3 8h5' stroke='%23fbfaf6' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">TraceGym</span>
+          <span class="brand-sub">debugging practice</span>
+        </div>
+        <nav class="modes" role="tablist" aria-label="Modes">
+          <button role="tab" class="mode-button" data-mode="playground" aria-selected="true">Playground</button>
+          <button role="tab" class="mode-button" data-mode="debug" aria-selected="false">Debug Lab</button>
+          <button role="tab" class="mode-button" data-mode="lab" aria-selected="false">Model Lab</button>
+        </nav>
+        <button id="ai-pill" class="ai-pill" type="button" aria-haspopup="dialog">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="ai-pill-text">Local AI off</span>
+        </button>
+      </header>
+
+      <main>
+        <section id="workbench" class="workbench">
+          <aside class="rail" id="rail" hidden>
+            <div class="rail-head">Five broken programs</div>
+            <nav id="challenge-list" class="challenge-list" aria-label="Debug Lab challenges"></nav>
+            <div class="rail-foot">
+              <p>Fix the code. Run the tests. Ask for a hint only if you are stuck.</p>
+            </div>
+          </aside>
+
+          <div class="editor-column">
+            <div class="pane-head">
+              <div class="pane-title">
+                <span id="pane-title">Playground</span>
+                <span id="pane-sub" class="pane-sub"></span>
+              </div>
+              <div class="pane-actions">
+                <button id="reset-btn" class="ghost" type="button" title="Restore the starting code">Reset</button>
+                <button id="run-btn" class="primary" type="button" disabled>
+                  <span>Run</span>
+                  <kbd>⌘↵</kbd>
+                </button>
+              </div>
+            </div>
+
+            <div id="goal" class="goal" hidden></div>
+            <div id="editor-host" class="editor-host"></div>
+
+            <details id="expected-block" class="expected">
+              <summary>Compare with expected output <span class="optional">optional</span></summary>
+              <textarea
+                id="expected-input"
+                rows="4"
+                spellcheck="false"
+                placeholder="Paste the output you expect, then press Run."
+              ></textarea>
+              <p class="fine">Whitespace at the end of lines is ignored. Everything else is compared exactly.</p>
+            </details>
+          </div>
+
+          <div class="output-column">
+            <div class="pane-head">
+              <div class="segmented" role="tablist" aria-label="Output panels">
+                <button id="tab-output" class="active" role="tab" aria-selected="true" type="button">Output</button>
+                <button id="tab-tests" role="tab" aria-selected="false" type="button">
+                  Tests <span id="test-count" class="count" hidden></span>
+                </button>
+              </div>
+              <span id="run-status" class="run-status">starting Python…</span>
+            </div>
+
+            <div class="output-scroll">
+              <div id="console-view" class="console"></div>
+              <div id="tests-view" class="tests" hidden></div>
+
+              <section class="ai" id="ai-section" aria-label="Help">
+                <header class="ai-head">
+                  <div class="ai-title">
+                    <strong>Help me think</strong>
+                    <span id="ai-badge" class="badge">off</span>
+                  </div>
+                  <button id="ai-settings" class="ghost small" type="button">Model…</button>
+                </header>
+                <p class="ai-note" id="ai-note">
+                  Optional. A small model can run on this device to explain the error or ask one guiding question. It never edits
+                  your code, and Python decides whether the code is right.
+                </p>
+                <div class="ai-actions">
+                  <button id="explain-btn" type="button" disabled>Explain this error</button>
+                  <button id="hint-btn" type="button" disabled>One hint</button>
+                </div>
+                <div id="ai-answer" class="ai-answer" hidden></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section id="lab" class="lab" hidden></section>
+      </main>
+    </div>
+
+    <dialog id="ai-dialog" class="dialog">
+      <form method="dialog" class="dialog-card">
+        <header class="dialog-head">
+          <h2>Local AI help</h2>
+          <p class="muted">
+            A separate download, running in this tab. Your code, your test results and your questions stay on this device.
+          </p>
+        </header>
+
+        <div id="gpu-status" class="gpu-status"></div>
+
+        <fieldset class="model-choices">
+          <legend>Choose a model</legend>
+          <div id="model-choice-list"></div>
+        </fieldset>
+
+        <div id="download-area" class="download-area" hidden>
+          <div class="bar"><span id="download-bar"></span></div>
+          <p id="download-text" class="muted"></p>
+        </div>
+
+        <p class="fine">
+          The model only ever writes an explanation. TraceGym checks every answer for code or fix instructions and throws it away if
+          it finds any — the tests are still the only thing that decides correctness.
+        </p>
+
+        <div class="dialog-actions">
+          <button id="ai-cancel" class="ghost" type="button" value="cancel">Not now</button>
+          <button id="ai-download" class="primary" type="button">Download &amp; turn on</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

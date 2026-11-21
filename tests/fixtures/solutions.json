@@ -1,0 +1,8 @@
+{
+  "_comment": "Reference fixes. Used only by scripts/verify-curriculum.mjs. Never imported by the app bundle, so the UI cannot leak them.",
+  "sum-to": "def sum_to(n):\n    total = 0\n    for number in range(1, n + 1):\n        total += number\n    return total\n",
+  "find-max": "def find_max(numbers):\n    best = numbers[0]\n    for number in numbers:\n        if number > best:\n            best = number\n    return best\n",
+  "drop-negatives": "def drop_negatives(numbers):\n    kept = []\n    for number in numbers:\n        if number >= 0:\n            kept.append(number)\n    return kept\n",
+  "total-price": "def total_price(prices):\n    total = 0\n    for price in prices:\n        total += price\n    return total\n",
+  "describe-age": "def describe_age(age):\n    return f\"You are {age} years old\"\n"
+}
