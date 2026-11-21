@@ -1,0 +1,167 @@
+[
+  {
+    "id": "sum-to",
+    "title": "Sum from 1 to n",
+    "bugClass": "Off-by-one loop",
+    "difficulty": 1,
+    "goal": "sum_to(n) must add every whole number from 1 up to and including n.",
+    "starter": "def sum_to(n):\n    total = 0\n    for number in range(1, n):\n        total += number\n    return total\n\n\n# Try it: sum_to(3) should be 6, because 1 + 2 + 3 = 6\nprint(sum_to(3))\n",
+    "tests": [
+      {
+        "name": "sum_to(3)",
+        "call": "sum_to(3)",
+        "expect": "6"
+      },
+      {
+        "name": "sum_to(5)",
+        "call": "sum_to(5)",
+        "expect": "15"
+      },
+      {
+        "name": "sum_to(1)",
+        "call": "sum_to(1)",
+        "expect": "1"
+      }
+    ],
+    "concept": "(n ?\\+ ?1|inclusiv|exclusiv|stops? (before|short|at)|before n|not includ|leaves? (out|off)|missing|one short|off.by.one|one number early|never reach)",
+    "fallbackHint": "Look at the loop line: range(1, n) stops before n, so for n = 3 the loop visits 1 and 2 and never 3. Which number is missing from your total, and where does the loop decide when to stop?",
+    "expectedError": null,
+    "leakPatterns": [
+      "range\\(\\s*1\\s*,\\s*n\\s*\\+\\s*1\\s*\\)",
+      "range\\(\\s*1\\s*,\\s*n\\s*\\+\\s*1\\s*,",
+      "\\bn\\s*\\+\\s*1\\b",
+      "range\\(\\s*0\\s*,\\s*n\\s*\\)"
+    ]
+  },
+  {
+    "id": "find-max",
+    "title": "Largest number in a list",
+    "bugClass": "Bad starting value / hidden test case",
+    "difficulty": 2,
+    "goal": "find_max(numbers) must return the largest value in the list, including when every value is negative.",
+    "starter": "",
+    "benchStarter": "def find_max(numbers):\n    best = 0\n    for number in numbers:\n        if number > best:\n            best = number\n    return best\n\n\nprint(find_max([3, 1, 4]))\n",
+    "tests": [
+      {
+        "name": "find_max([3, 1, 4])",
+        "call": "find_max([3, 1, 4])",
+        "expect": "4"
+      },
+      {
+        "name": "find_max([-5, -2, -9])",
+        "call": "find_max([-5, -2, -9])",
+        "expect": "-2"
+      },
+      {
+        "name": "find_max([7])",
+        "call": "find_max([7])",
+        "expect": "7"
+      }
+    ],
+    "concept": "((best|largest|max|answer).{0,70}(start|initial|zero|\\b0\\b|negative|seed))|((start|initial|zero|negative).{0,70}(best|largest|max))|negative",
+    "leakPatterns": [
+      "best\\s*=\\s*numbers\\s*\\[\\s*0\\s*\\]",
+      "best\\s*=\\s*max\\(",
+      "best\\s*=\\s*float\\(\\s*['\"]-inf",
+      "-inf|math\\.inf|numbers\\s*\\[\\s*0\\s*\\]|first element"
+    ],
+    "expectedError": null,
+    "fallbackHint": "One test passes and one fails - that is the interesting part. What does best hold before the loop runs, and can a negative number ever be bigger than that starting value?"
+  },
+  {
+    "id": "drop-negatives",
+    "title": "Remove the negative numbers",
+    "bugClass": "Mutating a list while looping over it",
+    "difficulty": 3,
+    "goal": "drop_negatives(numbers) must return the list with every negative number removed and the rest in their original order.",
+    "starter": "def drop_negatives(numbers):\n    for number in numbers:\n        if number < 0:\n            numbers.remove(number)\n    return numbers\n\n\nprint(drop_negatives([3, -1, -4, 5]))\n",
+    "tests": [
+      {
+        "name": "drop_negatives([3, -1, -4, 5])",
+        "call": "drop_negatives([3, -1, -4, 5])",
+        "expect": "[3, 5]"
+      },
+      {
+        "name": "drop_negatives([-2, -3])",
+        "call": "drop_negatives([-2, -3])",
+        "expect": "[]"
+      },
+      {
+        "name": "drop_negatives([1, 2])",
+        "call": "drop_negatives([1, 2])",
+        "expect": "[1, 2]"
+      }
+    ],
+    "concept": "(remov|delet|mutat|modif).{0,80}(while|during|same loop|loop|iterat|same list)|(iterat|loop).{0,80}(remov|delet|mutat|skip)|(skip|shift|move|jump).{0,70}(next|position|index|element)",
+    "fallbackHint": "Two negative numbers sit next to each other: -1 and -4. When -1 is removed, what happens to the position of -4, and where is the loop's next step looking?",
+    "expectedError": null,
+    "leakPatterns": [
+      "\\[\\s*x\\s+for\\s+x\\s+in",
+      "for\\s+n\\w*\\s+in\\s+numbers\\.copy\\(\\)",
+      "numbers\\[\\s*:\\s*\\]",
+      "list\\(\\s*numbers\\s*\\)"
+    ]
+  },
+  {
+    "id": "total-price",
+    "title": "Add up the prices",
+    "bugClass": "Variable read before it is given a value",
+    "difficulty": 2,
+    "goal": "total_price(prices) must return the sum of all prices, and 0 for an empty list.",
+    "starter": "def total_price(prices):\n    for price in prices:\n        total += price\n    return total\n\n\nprint(total_price([2.5, 1.5]))\n",
+    "tests": [
+      {
+        "name": "total_price([2.5, 1.5])",
+        "call": "total_price([2.5, 1.5])",
+        "expect": "4.0"
+      },
+      {
+        "name": "total_price([3])",
+        "call": "total_price([3])",
+        "expect": "3"
+      },
+      {
+        "name": "total_price([])",
+        "call": "total_price([])",
+        "expect": "0"
+      }
+    ],
+    "concept": "unbound|local|(total|variable|accumulator|name).{0,70}(before|first|start|initial|assign|set|create|define|zero|exist)|(before|first|inside).{0,50}loop",
+    "fallbackHint": "The error calls total a local variable that was read before it had a value. Find the line where total is supposed to be created - does that line exist yet?",
+    "expectedError": "UnboundLocalError",
+    "leakPatterns": [
+      "^\\s*total\\s*=\\s*0\\s*$",
+      "total\\s*(=|:=)\\s*0"
+    ]
+  },
+  {
+    "id": "describe-age",
+    "title": "Build a sentence from a number",
+    "bugClass": "Joining text and a number with +",
+    "difficulty": 1,
+    "goal": "describe_age(age) must return text like \"You are 12 years old\".",
+    "starter": "def describe_age(age):\n    return \"You are \" + age + \" years old\"\n\n\nprint(describe_age(12))\n",
+    "tests": [
+      {
+        "name": "describe_age(12)",
+        "call": "describe_age(12)",
+        "expect": "'You are 12 years old'"
+      },
+      {
+        "name": "describe_age(0)",
+        "call": "describe_age(0)",
+        "expect": "'You are 0 years old'"
+      }
+    ],
+    "concept": "(str|string|text|type|convert|cast|format|f-string|concatenat|glue)",
+    "fallbackHint": "Read the error type first: TypeError, not ValueError. Python refuses to glue text and a number with +. What type is age, and what type does the thing on the left of + expect?",
+    "expectedError": "TypeError",
+    "leakPatterns": [
+      "str\\(\\s*age\\s*\\)",
+      "f\"You are \\{age\\}",
+      "f'You are \\{age\\}",
+      "\\.format\\(\\s*age\\s*\\)",
+      "%\\s*age"
+    ]
+  }
+]
