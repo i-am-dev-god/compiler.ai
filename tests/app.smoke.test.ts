@@ -237,6 +237,20 @@ describe('compiler shell', () => {
     expect($('hint-btn').textContent).toContain('Hint used');
   });
 
+  it('opens the largest-number exercise with an empty editor', async () => {
+    await boot();
+    (document.querySelector('[data-mode="debug"]') as HTMLButtonElement).click();
+    await flush();
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.challenge-item');
+    buttons[1].click();
+    await flush();
+    expect($('pane-title').textContent).toBe('Largest number in a list');
+    expect(code.value).toBe('');
+    // Reset must not bring back a program the student never had.
+    $<HTMLButtonElement>('reset-btn').click();
+    expect(code.value).toBe('');
+  });
+
   it('loads a different exercise into the editor when one is picked', async () => {
     await boot();
     (document.querySelector('[data-mode="debug"]') as HTMLButtonElement).click();

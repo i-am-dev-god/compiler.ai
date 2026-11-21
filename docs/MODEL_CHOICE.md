@@ -114,7 +114,8 @@ demand). Inference runs in its own worker (`src/ai/ai.worker.ts`) so generation 
 ## 6. Do not trust this document — measure
 
 Model Lab (`Model Lab` tab) runs the same 10 prompts the tutor uses (explain + hint for all five
-exercises, generated from the *real* runner output on the *real* broken starters) against whichever
+exercises, generated from the *real* runner output on the real broken programs — for the exercise that
+ships with an empty editor, its reference broken program in `benchStarter`) against whichever
 models you select, on your hardware, and scores each answer with a deterministic rubric:
 
 ```

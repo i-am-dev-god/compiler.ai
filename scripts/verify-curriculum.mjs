@@ -40,7 +40,10 @@ console.log(`Python ${py.runPython('import sys; sys.version.split()[0]')} / ${ch
 
 for (const challenge of challenges) {
   console.log(`${challenge.id} — ${challenge.bugClass}`);
-  const starter = runPayload({ mode: 'tests', code: challenge.starter, tests: challenge.tests });
+  // Some exercises ship with an empty editor; the proof still measures the
+  // reference broken program so the bug class stays covered.
+  const source = challenge.benchStarter ?? challenge.starter;
+  const starter = runPayload({ mode: 'tests', code: source, tests: challenge.tests });
   const solutionCode = solutions[challenge.id];
   check(Boolean(solutionCode), 'has a reference fix');
 
@@ -72,7 +75,7 @@ for (const challenge of challenges) {
 
   for (const pattern of challenge.leakPatterns ?? []) {
     const leak = new RegExp(pattern, 'im');
-    check(!leak.test(starter), `starter does not already contain fix (${pattern})`);
+    check(!leak.test(source), `starter does not already contain fix (${pattern})`);
     if (solutionCode) check(leak.test(solutionCode) || true, 'leak pattern compiled');
   }
 

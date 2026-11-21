@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { scoreHelp } from '../src/ai/rubric';
 import challenges from '../src/data/challenges.json';
+import { benchCode } from '../src/data/challenges';
 
 /**
  * What a 1.5B coder model plausibly returns, run through the same guard and
@@ -14,7 +15,7 @@ function grade(id: string, mode: 'explain' | 'hint', text: string) {
   const challenge = byId[id];
   return scoreHelp(text, {
     mode,
-    studentCode: challenge.starter,
+    studentCode: benchCode(challenge),
     challenge: { concept: challenge.concept, leakPatterns: challenge.leakPatterns },
   });
 }

@@ -1,4 +1,4 @@
-import { CHALLENGES, type Challenge } from '../data/challenges';
+import { CHALLENGES, type Challenge, benchCode } from '../data/challenges';
 import type { PythonRunner } from '../runner/client';
 import type { RunResult } from '../runner/types';
 import type { AIClient } from '../ai/client';
@@ -92,14 +92,14 @@ async function collectHardware(): Promise<Hardware> {
 async function buildCases(runner: PythonRunner): Promise<BenchCase[]> {
   const cases: BenchCase[] = [];
   for (const challenge of CHALLENGES) {
-    const result = await runner.run({ mode: 'tests', code: challenge.starter, tests: challenge.tests });
+    const result = await runner.run({ mode: 'tests', code: benchCode(challenge), tests: challenge.tests });
     for (const mode of ['explain', 'hint'] as HelpMode[]) {
       cases.push({
         id: `${challenge.id}:${mode}`,
         challengeId: challenge.id,
         title: challenge.title,
         mode,
-        code: challenge.starter,
+        code: benchCode(challenge),
         goal: challenge.goal,
         result,
         challenge,

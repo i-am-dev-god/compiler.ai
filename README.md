@@ -11,6 +11,10 @@ it, and help arrives only when you press a button:
 
 Python runs the code. The model never decides whether a program is correct.
 
+The Debug Lab holds five exercises. Four open with a broken program; **Largest number in a list** opens with an
+empty editor — the goal and its three tests are the task, including the negative-number case a `best = 0`
+solution fails.
+
 **Model:** [`Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC`](docs/MODEL_CHOICE.md) (1.63 GB GPU memory, Apache-2.0,
 code-tuned), with `LFM2.5-1.2B` for weak GPUs and `Qwen3.5-2B` when there is memory to spare. It is asked for
 once, on first load, and can be declined.
@@ -29,7 +33,7 @@ separate, explicit download: the first visit asks, and nothing is fetched unless
 
 ```bash
 npm run verify            # unit + integration tests, curriculum proof, typecheck, production build
-npm test                  # 70 tests
+npm test                  # 71 tests
 npm run verify:curriculum # runs every bug through real CPython and asserts the behaviour
 npm run build && npm run preview
 ```
@@ -66,6 +70,7 @@ Tests changed the implementation several times while writing this; the ones belo
 | The editor underlines exactly the marked span | `tests/editor.test.ts` mounts real CodeMirror, checks the highlighted text and the line-removal/insert semantics. |
 | Explanations cannot contain code or fix instructions | `tests/guard.test.ts`, including "what if the loop used `n + 1`?" and quoting the fix back after the student already wrote it. |
 | The first visit asks for the model download | `tests/app.smoke.test.ts` boots the real `index.html` plus the real app module. |
+| A blank exercise still has a measurable reference | `find-max` ships with an empty editor; the curriculum proof and Model Lab run its `benchStarter` so the hidden-test bug class stays covered. |
 | The app works under a project subpath | Built with `PAGES_BASE=/compiler.ai/` and served from that path in preview: page, `sw.js`, assets and `/pyodide/pyodide.mjs` all resolve. |
 
 **Not verified here:** the sandbox has no browser and no GPU, so the WebGPU inference path, the service-worker

@@ -39,7 +39,8 @@
     "bugClass": "Bad starting value / hidden test case",
     "difficulty": 2,
     "goal": "find_max(numbers) must return the largest value in the list, including when every value is negative.",
-    "starter": "def find_max(numbers):\n    best = 0\n    for number in numbers:\n        if number > best:\n            best = number\n    return best\n\n\nprint(find_max([3, 1, 4]))\n",
+    "starter": "",
+    "benchStarter": "def find_max(numbers):\n    best = 0\n    for number in numbers:\n        if number > best:\n            best = number\n    return best\n\n\nprint(find_max([3, 1, 4]))\n",
     "tests": [
       {
         "name": "find_max([3, 1, 4])",
@@ -58,14 +59,14 @@
       }
     ],
     "concept": "((best|largest|max|answer).{0,70}(start|initial|zero|\\b0\\b|negative|seed))|((start|initial|zero|negative).{0,70}(best|largest|max))|negative",
-    "fallbackHint": "One test passes and one fails - that is the interesting part. What does best hold before the loop runs, and can a negative number ever be bigger than that starting value?",
-    "expectedError": null,
     "leakPatterns": [
       "best\\s*=\\s*numbers\\s*\\[\\s*0\\s*\\]",
       "best\\s*=\\s*max\\(",
       "best\\s*=\\s*float\\(\\s*['\"]-inf",
       "-inf|math\\.inf|numbers\\s*\\[\\s*0\\s*\\]|first element"
-    ]
+    ],
+    "expectedError": null,
+    "fallbackHint": "One test passes and one fails - that is the interesting part. What does best hold before the loop runs, and can a negative number ever be bigger than that starting value?"
   },
   {
     "id": "drop-negatives",

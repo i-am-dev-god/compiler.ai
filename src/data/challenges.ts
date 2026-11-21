@@ -7,7 +7,14 @@ export interface Challenge {
   bugClass: string;
   difficulty: number;
   goal: string;
+  /** What the editor opens with. Empty means the student writes it from scratch. */
   starter: string;
+  /**
+   * The known-broken reference program, kept for the Model Lab and the
+   * curriculum proof so that a blank exercise still has something measurable.
+   * Never shown in the editor.
+   */
+  benchStarter?: string;
   tests: TestSpec[];
   /** Regex source describing the idea a good hint must reach. */
   concept: string;
@@ -36,3 +43,8 @@ def average(numbers):
 
 print(average([2, 4, 6]))
 `;
+
+/** The program to measure against: the shipped starter, or its reference version. */
+export function benchCode(challenge: Challenge): string {
+  return challenge.benchStarter ?? challenge.starter;
+}
